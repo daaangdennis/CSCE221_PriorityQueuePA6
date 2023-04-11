@@ -36,7 +36,21 @@ private:
      * @param index the current position to swap upwards
      */
     void upheap(size_type index) {
-        // TODO
+        if(index > 0)
+        {
+            // If current node is greater than parent node, swap
+            if(comp(c[parent(index)], c[index]))
+            {
+                // Swap values
+                T temp = std::move(c[index]);
+                c[index] = std::move(c[parent(index)]);
+                c[parent(index)] = std::move(temp);
+
+                // Call upheap on new position
+                upheap(parent(index));
+            }
+        }
+
     }
     
     /**
@@ -51,7 +65,33 @@ private:
      * @param index the current position to swap downwards
      */
     void downheap(size_type index) {
-        // TODO
+        if(is_leaf(index)) // If the current node is a leaf, return because it has no children to swap with
+        {
+            return;
+        }
+
+        size_type indexOfMax = left_child(index); // Default max node is left child
+
+        // If right child exists and is smaller than left, swap index of max node to right child
+        if(right_child(index) < c.size() && comp(c[indexOfMax], c[right_child(index)])) 
+        {
+            indexOfMax = right_child(index);
+        }
+
+        // After calculating max node, check if current node needs to be swapped/is greater than child node
+        if(comp(c[indexOfMax], c[index])) 
+        {
+            return;
+        }
+
+        // Swap values
+        T temp = std::move(c[index]);
+        c[index] = std::move(c[indexOfMax]);
+        c[indexOfMax] = std::move(temp);
+
+        // Call downheap on new position
+        downheap(indexOfMax);
+
     }
 
 public:
@@ -69,7 +109,7 @@ public:
      * 
      * @return const_reference to the element at the top of the heap.
      */
-    const_reference top() const { /* TODO */ }
+    const_reference top() const { return c.front(); }
 
     /**
      * @brief Return whether the heap is empty. This is the same as whether the underlying container, c, is empty.
@@ -79,7 +119,7 @@ public:
      * @return true c is empty
      * @return false c is not empty
      */
-    bool empty() const { /* TODO */ }
+    bool empty() const { return c.empty(); }
 
     /**
      * @brief Return the number of elements in the heap. This is the same as the number of elements in the underlying container, c.
@@ -88,7 +128,7 @@ public:
      * 
      * @return size_type of the number of elements in the heap
      */
-    size_type size() const { /* TODO */ }
+    size_type size() const { return c.size(); }
 	
     /**
      * @brief Inserts element and sorts the underlying container, c.
@@ -100,7 +140,8 @@ public:
      * @param value inserted by copying into c 
      */
     void push( const value_type& value ) {
-        // TODO
+        c.push_back(value);
+        upheap(c.size()-1);
     }
 
     /**
@@ -113,7 +154,8 @@ public:
      * @param value inserted by moving into c 
      */
 	void push( value_type&& value ) {
-        // TODO
+        c.push_back(std::move(value));
+        upheap(c.size()-1);
     }
 
     /**
@@ -125,6 +167,8 @@ public:
      * 
      */
     void pop() {
-        // TODO
+        c.front() = std::move(c.back());
+        c.pop_back();
+        downheap(0);
     }
 };
